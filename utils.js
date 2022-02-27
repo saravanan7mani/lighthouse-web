@@ -14,21 +14,18 @@ export function parseNodes(sortedNodes) {
     for (let n of sortedNodes) {
 
         out[bucketIndex].push(n);
-
         count++;
 
         if (count % bucketCapacity === 0) {
             bucketIndex++;
             out.push([]);
-            //console.log(count, bucketIndex, out);
-            //console.log(count, bucketIndex);
         }
 
     }
 
     return out.filter(b => b.length > 0).map((bucket, index) => {
 
-        console.log(`Bucket #${index}: ${bucket[0].capacity} to ${bucket[bucket.length - 1].capacity}`);
+        //console.log(`Bucket #${index}: ${bucket[0].capacity} to ${bucket[bucket.length - 1].capacity}`);
         
         return {
             id                      :   index,
@@ -57,8 +54,10 @@ export function formatSats(sats) {
         return sats;
     } else if (sats < 1000000) {
         return (sats / 1000).toFixed(2) + 'K';
+        //return (sats / 1000).toFixed(0) + 'K';
     } else {
         return (sats / 1000000).toFixed(2) + 'M';
+        //return (sats / 1000000).toFixed(0) + 'M';
     }
 
 }

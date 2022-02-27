@@ -21,6 +21,7 @@
         <nav class="navbar navbar-expand-md fixed-top border-bottom">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#"> Lighthouse </a>
+                <!--
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -34,14 +35,28 @@
                         </li>
                     </ul>
                 </div>
+                -->
             </div>
         </nav>
 
-        <main class="container border p-2 rounded" style='height: 80vh'>
-            <svg id="renderBox" class='w-100 h-100'></svg>
+        <main class="container border p-2 rounded">
+            <div class='row'>
+                <div class="col-12 col-sm-9 col-md-9 col-lg-10">
+                    <div id="breadCrumb" class='bg-light text-secondary p-2 w-100' style="display: flex; gap: 12px;" > &nbsp; </div>
+                </div>
+                <div class="col-12 col-sm-3 col-md-3 col-lg-2 text-end">
+                    <button type="button" class="btn btn-secondary" id="resetBtn"> Reset </button>
+                    <button type="button" class="btn btn-secondary" id="helpBtn"> ? </button>
+                </div>
+            </div>
+
+            <div class='row' style='height: 80vh'>
+                <div class='col-12'>
+                    <svg id="renderBox" class='w-100 h-100'></svg>
+                </div>
+            </div>
         </main>
 
-        
         <footer class="mt-4 p-4 border-top">
             <div class="row">
                 <div class="col-12 text-center">
@@ -54,10 +69,34 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel"> Node / Channel Info </h5>
+                        <h5 class="modal-title"> Node / Channel Info </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div id='nodeTipBody' class="modal-body" style='overflow-wrap: anywhere'>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="helpModel" tabindex="-1" aria-labelledby="helpModel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"> About </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style='overflow-wrap: anywhere'>
+                        <b> Hint </b>
+                        <ol>
+                            <li>Long press to end Nodes, channel links to view info.</li>
+                        </ol>
+                        <b> About this tool </b>
+                        <p> Blah, blah, blah </p>
+                        <b> React us at </b>
+                        <p> <a href='https://twitter.com/saravananmani_' target='_blank'> @saravananmani_</a>, <a href='https://twitter.com/saiy2k' target='_blank'> @saiy2k</a> </p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
