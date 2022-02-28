@@ -1,3 +1,4 @@
+import { formatSats         }   from    './utils.js';
 
 export const longPressLink = async (d) => {
 
@@ -23,7 +24,6 @@ export const longPressNode = async (d) => {
 
     const selectedNode = d.srcElement.__data__;
     const pub_key = selectedNode.pub_key;
-    const index = selected.findIndex(s => s === pub_key);
 
     //console.log('longPressNode: ', selectedNode);
 
@@ -39,4 +39,10 @@ export const longPressNode = async (d) => {
     document.getElementById('nodeTipBody').innerHTML = msg;
 }
 
+document.getElementById('helpBtn').addEventListener('click', () => {
+
+    const myModal = new bootstrap.Modal(document.getElementById('helpModel'));
+    myModal.show();
+
+});
 

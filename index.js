@@ -1,7 +1,3 @@
-import { firstResponse,
-         secondResponse,
-         thirdResponse,
-         leafResponse       }   from    '../data.js'; 
 
 import { parseNodes, 
          parseLinks, 
@@ -14,6 +10,9 @@ import { drag,
 import { longPressLink, 
          longPressNode      }   from    './event.handlers.js';
 
+let firstResponse;
+//const serviceBase               =   'http://localhost:8089/graph/nodes';
+const serviceBase               =   'http://206.189.143.99:8089/graph/nodes';
 const WIDTH                     =   document.getElementById('renderBox').clientWidth;
 const HEIGHT                    =   document.getElementById('renderBox').clientHeight;
 const CENTERX                   =   WIDTH / 2;
@@ -29,19 +28,9 @@ const lastDepth = 3;
 
 let sim;
 let apiResp;
-let graphResp = firstResponse;
-nodes.push(...graphResp.nodes);
-links.push(...graphResp.links);
+let graphResp;
 
 let breadCrumb = [''];
-
-document.getElementById('helpBtn').addEventListener('click', () => {
-
-    const myModal = new bootstrap.Modal(document.getElementById('helpModel'));
-    console.log(myModal);
-    myModal.show();
-
-});
 
 document.getElementById('resetBtn').addEventListener('click', () => {
 
@@ -64,17 +53,19 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     vis.selectAll('.lineText').data([]).exit().remove();
 
     setTimeout(() => {
-        init();
-        //sim.force('charge', null);
-        //sim.stop();
-        //const simulation = d3.forceSimulation(nodes)
-        //    .force('charge', d3.forceManyBody().strength( -10 ))
-        //    .force('link', d3.forceLink(links))
-        //    .force('center', d3.forceCenter(CENTERX, CENTERY));
-        //sim = simulation;
-        //sim.alpha(1).restart();
-        //const { node, container, link, line, lineText } = redrawNodes(vis, simulation, nodes, links);
-        //simTick(simulation, container, line, lineText);
+        
+        const simulation = d3.forceSimulation(nodes)
+            .force('charge', d3.forceManyBody().strength( 0 ))
+            .force('link', d3.forceLink(links))
+            .force('center', d3.forceCenter(CENTERX, CENTERY));
+        sim = simulation;
+        const { node, container, link, line, lineText } = redrawNodes(vis, simulation, nodes, links,
+            isMobile, depth, lastDepth, radius,
+            circleStroke, circleColor, primaryColor, grayColor,
+            genNodeText, genNodeCountText, click);
+
+        simTick(simulation, container, line, lineText);
+
     }, 100);
 
 });
@@ -83,7 +74,6 @@ const click = async (d) => {
 
     const selectedNode = d.srcElement.__data__;
     const pub_key = selectedNode.pub_key;
-    const index = selected.findIndex(s => s === pub_key);
 
     //console.log('click: ', selected, selectedNode, index);
 
@@ -91,14 +81,8 @@ const click = async (d) => {
     links = [];
 
     if (depth === 1) {
-        const serviceBase       =   'http://localhost:8089/graph/nodes';
-        //const serviceBase       =   'http://139.59.38.23:8089/graph/nodes';
-        const stSats            =   selectedNode.startSats;
-        const enSats            =   selectedNode.endSats;
-        const apiRawResp        =   await fetch(`${serviceBase}?min_capacity=${stSats}&max_capacity=${enSats}&limit=1000`);
-        apiResp                 =   await apiRawResp.json();
         graphResp               =   {
-            nodes: parseNodes(apiResp.nodes),
+            nodes: parseNodes(selectedNode.children),
             links: []
         };
         nodes.push(...graphResp.nodes);
@@ -120,7 +104,7 @@ const click = async (d) => {
         breadCrumb.push(`${formatSats(selectedNode.startSats)} to ${formatSats(selectedNode.endSats)}`);
         document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
 
-    } else if (depth === lastDepth) {
+    } else if (depth <= lastDepth) {
         graphResp               =   {
             nodes: selectedNode.children,
             links: []
@@ -133,8 +117,10 @@ const click = async (d) => {
         document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
 
     } else if (depth === lastDepth + 1) {
-        const serviceBase       =   'http://localhost:8089/graph/nodes';
-        //const serviceBase       =   'http://139.59.38.23:8089/graph/nodes';
+
+        document.getElementById('spinOverlay').style.display = 'block';
+        document.getElementById('spinSpinner').style.display = 'block';
+
         const apiRawResp        =   await fetch(serviceBase, {
             method: "POST",
             headers: {
@@ -146,10 +132,13 @@ const click = async (d) => {
         });
         const endNodeResp       =   await apiRawResp.json();
 
+        document.getElementById('spinOverlay').style.display = 'none';
+        document.getElementById('spinSpinner').style.display = 'none';
+
         const lnks = parseLinks(endNodeResp);
 
-        //console.log('lnks 1', endNodeResp);
-        //console.log('lnks 2', lnks);
+        nodes = [];
+        links = [];
 
         graphResp               =   {
             nodes: endNodeResp.nodes,
@@ -157,9 +146,12 @@ const click = async (d) => {
         };
         nodes.push(...graphResp.nodes);
         links.push(...graphResp.links);
+
+        const selectedN = nodes.find(n => n.public_key === selectedNode.public_key);
+        selectedN.isCenter = true;
     }
 
-    //console.log(nodes, links);
+    //console.log('click: ', nodes, links);
 
     vis.selectAll('.node').data([]).exit().remove();
     vis.selectAll('.link').data([]).exit().remove();
@@ -168,14 +160,14 @@ const click = async (d) => {
     setTimeout(() => {
         const simulation = d3.forceSimulation(nodes)
             .force('charge', d3.forceManyBody().strength( strength ))
-            .force('link', d3.forceLink(links).distance(d => depth < lastDepth + 1 ? 30 : isMobile ? (70 + d.index * 3) : (100 + d.index * 5) ))
+            .force('link', d3.forceLink(links).distance(d => depth < lastDepth + 1 ? 30 : isMobile ? (60 + d.index * 3) : (90 + d.index * 4) ))
             .force('center', d3.forceCenter(CENTERX, CENTERY));
         sim = simulation;
 
         const { node, container, link, line, lineText } = redrawNodes(vis, simulation, nodes, links,
             isMobile, depth, lastDepth, radius,
             circleStroke, circleColor, primaryColor, grayColor,
-            genNodeText, genNodeCountText);
+            genNodeText, genNodeCountText, click);
 
         simTick(simulation, container, line, lineText);
     }, 100);
@@ -185,17 +177,23 @@ const click = async (d) => {
 
 const selected = [];
 
-const strength = (d) => isMobile ? -25 : -50
+const strength = (d) => {
+    if (depth > lastDepth) {
+        return isMobile ? -10 : -20;
+    } else {
+        return isMobile ? -25 : -50;
+    }
+}
 const radius = (d) => {
     if (isMobile) {
         return depth === lastDepth + 1 ? 15 : 35
     } else {
-        return depth === lastDepth + 1 ? 25 : 45
+        return depth === lastDepth + 1 ? 28 : 45
     }
 };
 const circleStroke = (d) => {
     if (depth > lastDepth) {
-        return '#FF8888';
+        return '#1EB5D2';
     } else {
         return '#BBBBBB';
     }
@@ -203,7 +201,11 @@ const circleStroke = (d) => {
 
 const circleColor = (d) => {
     if (depth > lastDepth) {
-        return nodeColor;
+        if (d.isCenter) {
+            return '#F79767';
+        } else {
+            return '#57C8E3';
+        }
     } else {
         return bucketColor;
     }
@@ -253,13 +255,25 @@ function init() {
     const { node, container, link, line, lineText } = redrawNodes(vis, simulation, nodes, links,
         isMobile, depth, lastDepth, radius,
         circleStroke, circleColor, primaryColor, grayColor,
-        genNodeText, genNodeCountText);
+        genNodeText, genNodeCountText, click);
 
     simTick(simulation, container, line, lineText);
 
 }
 
-setTimeout(() => {
+setTimeout(async () => {
+
+    const lnNetworkRaw = await fetch('http://206.189.143.99:8089/graph/nodes');
+    firstResponse = {
+        nodes: parseNodes((await lnNetworkRaw.json()).nodes),
+        links: []
+    };
+    graphResp = firstResponse;
+    nodes.push(...graphResp.nodes);
+    links.push(...graphResp.links);
+
+    document.getElementById('spinOverlay').style.display = 'none';
+    document.getElementById('spinSpinner').style.display = 'none';
     init();
 }, 100);
 

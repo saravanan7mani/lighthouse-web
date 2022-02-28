@@ -1,6 +1,15 @@
-let tapStartTime;
-let tapEndTime;
+/*
+ * Click / Dbl click - Differentiator
+ * https://stackoverflow.com/questions/49357718/both-single-and-double-click-on-a-node-in-d3-force-directed-graph
+ */
+import { formatSats         }   from    './utils.js';
+
+import { longPressLink, 
+         longPressNode      }   from    './event.handlers.js';
+
 let isMobile;
+let timeout = null;
+
 
 const fnBig = (d) => isMobile ? '12px' : '14px';
 const fnNormal = (d) => isMobile ? '10px' : '12px';
@@ -9,7 +18,7 @@ const fnSmall = (d) => isMobile ? '8px' : '10px';
 export const redrawNodes = (vis, simulation, nodes, links,
     _isMobile, depth, lastDepth, radius,
     circleStroke, circleColor, primaryColor, grayColor,
-    genNodeText, genNodeCountText) => {
+    genNodeText, genNodeCountText, click) => {
 
     isMobile = _isMobile
 
@@ -19,20 +28,15 @@ export const redrawNodes = (vis, simulation, nodes, links,
         .append('line')
         .attr('id', l => l.id)
         .attr('class', 'link')
-        .attr('stroke', circleStroke)
+        .attr('stroke', '#aaaaaa')
         .attr('stroke-width', '3')
         .attr('x1', l => l.source.x)
         .attr('y1', l => l.source.y)
         .attr('x2', l => l.target.x)
         .attr('y2', l => l.target.y)
-        .on('mousedown', (d) => {
-            tapStartTime = new Date().getTime();
-        })
-        .on('mouseup', (d) => {
-            tapEndTime = new Date().getTime();
-            if (tapEndTime - tapStartTime > 200 && depth === lastDepth + 1) {
-                longPressLink(d);
-            }
+        .on('dblclick', (d) => {
+            console.log('dblclick');
+            longPressLink(d);
         })
         .on('mouseover', function() {
             d3.select(this).attr('stroke-width', '6');
@@ -40,7 +44,7 @@ export const redrawNodes = (vis, simulation, nodes, links,
         })
         .on('mouseout', function() {
             d3.select(this).attr('stroke-width', '3');
-            d3.select(this).attr('stroke', circleStroke);
+            d3.select(this).attr('stroke', '#aaaaaa');
         });
 
     link.exit().remove();
@@ -51,7 +55,7 @@ export const redrawNodes = (vis, simulation, nodes, links,
         .attr("class","lineText")
         .attr("dx",0)
         .attr("dy",0)
-        .style("fill", '#FF6666')
+        .style("fill", '#073a82')
         .style('font-size', fnSmall)
         .text(d => formatSats(d.capacity) )
     linkText.exit().remove();
@@ -63,26 +67,25 @@ export const redrawNodes = (vis, simulation, nodes, links,
         .attr('class', 'node')
         .style('transform', (d) => `translate(${d.x}px, ${d.y}px)`)
         .call(drag(simulation))
-        .on('mousedown', (d) => {
-            console.log('mouse down');
-            tapStartTime = new Date().getTime();
-        })
-        .on('mouseup', (d) => {
-            console.log('mouse up');
-            tapEndTime = new Date().getTime();
-            if (tapEndTime - tapStartTime > 200 && depth === lastDepth + 1) {
-                longPressNode(d);
-            } else {
+        .on('click', (d) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                console.log('click');
                 click(d);
-            }
+            }, 300)
+        })
+        .on('dblclick', (d) => {
+            console.log('dblclick');
+            clearTimeout(timeout);
+            longPressNode(d);
         })
         .on('mouseover', function() {
-            console.log('mouse over');
+            //console.log('mouse over');
             d3.select(this.firstChild).attr('stroke-width', 2);
             d3.select(this.firstChild).attr('stroke', depth > lastDepth ? '#FF6666': primaryColor );
         })
         .on('mouseout', function() {
-            console.log('mouse out');
+            //console.log('mouse out');
             d3.select(this.firstChild).attr('stroke-width', 1);
             d3.select(this.firstChild).attr('stroke', circleStroke);
         })
@@ -97,7 +100,7 @@ export const redrawNodes = (vis, simulation, nodes, links,
 
         container.append('text')
             .attr('class', 'st')
-            .attr('fill', primaryColor)
+            .attr('fill', '#555555')
             .attr("y", "0")
             .style('text-anchor', 'middle')
             .style('font-size', fnNormal)
@@ -105,7 +108,7 @@ export const redrawNodes = (vis, simulation, nodes, links,
 
         container.append('text')
             .attr('class', 'en')
-            .attr('fill', primaryColor)
+            .attr('fill', '#555555')
             .attr("y", "16px")
             .style('text-anchor', 'middle')
             .style('font-size', fnSmall)

@@ -6,16 +6,18 @@ async function parse() {
 
     const out = [[]];
     //const sortedNodes = data.nodes.sort((a, b) => a.capacity - b.capacity);
-    const nodeResp          =   await fetch(`http://localhost:3000/graph/nodes?limit=3000`);
+    //const nodeResp          =   await fetch(`http://localhost:3000/graph/nodes?limit=3000`);
+    const nodeResp          =   await fetch(`http://206.189.143.99:8089/graph/nodes`);
     const sortedNodes       =   (await nodeResp.json()).nodes;
-    console.log(sortedNodes);
+    //console.log(sortedNodes);
     let count = 0;
     let bucketIndex = 0;
-    let bucketCapacity = sortedNodes.length / 10;
+    let bucketCapacity = Math.round(sortedNodes.length / 10);
 
     console.log('len: ', sortedNodes.length);
     console.log('Least Capacity: ', sortedNodes[0].capacity);
     console.log('Max Capacity: ', sortedNodes[sortedNodes.length - 1].capacity);
+    console.log('Bucket Capacity: ', bucketCapacity);
     
     for (let n of sortedNodes) {
 
@@ -27,15 +29,15 @@ async function parse() {
             bucketIndex++;
             out.push([]);
             //console.log(count, bucketIndex, out);
-            console.log(count, bucketIndex);
+            //console.log(count, bucketIndex);
         }
 
     }
 
-    console.log('bucket length');
+    console.log('bucket count', out.length);
     out.map((b, index) => {
         if (b.length > 0) {
-            console.log(`Bucket #${index}: ${b[0].capacity} to ${b[b.length - 1].capacity}`);
+            console.log(`Bucket #${index}: ${b[0].capacity} to ${b[b.length - 1].capacity}: Length: ${b.length}`);
             //console.log(b[0]);
         }
         //console.log(b.length);

@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <title>Lighthouse</title>
+        <title> Lighthouse - Lightning network explorer </title>
 
         <style>
             body {
@@ -20,7 +20,7 @@
     <body>
         <nav class="navbar navbar-expand-md fixed-top border-bottom">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#"> Lighthouse </a>
+                <a class="navbar-brand" href="#" style="color: #dd7f13"> Lighthouse - Lightning Network Explorer </a>
                 <!--
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -51,8 +51,13 @@
             </div>
 
             <div class='row' style='height: 80vh'>
-                <div class='col-12'>
+                <div class='col-12' id='renderBoxParent' style='position: relative'>
                     <svg id="renderBox" class='w-100 h-100'></svg>
+                    <div id='spinOverlay' class='h-100 bg-dark' style='width: 96%; opacity: 0.25; position: absolute; top: 0px'>
+                    </div>
+                    <div id='spinSpinner' class="spinner-border" role="status" style='position: absolute; top: 48%; left: 48%'>
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
             </div>
         </main>
@@ -91,10 +96,20 @@
                     <div class="modal-body" style='overflow-wrap: anywhere'>
                         <b> Hint </b>
                         <ol>
-                            <li>Long press to end Nodes, channel links to view info.</li>
+                            <li>Double click/tap on end Nodes, channel links to view info.</li>
                         </ol>
                         <b> About this tool </b>
-                        <p> Blah, blah, blah </p>
+                        <p>
+                            - Here is our version of LN Explorer. <br/>
+                            - Nodes categorized by Channel capacity.
+                            - Suggestions welcome.
+                        </p>
+                        <b> Source code @ </b>
+                        <p>
+                            <a target='_blank' href='https://github.com/saravanan7mani/lighthouse'>https://github.com/saravanan7mani/lighthouse</a>
+                            <a target='_blank' href='https://github.com/saravanan7mani/lighthouse-web'>https://github.com/saravanan7mani/lighthouse-web</a>
+                        </p>
+
                         <b> React us at </b>
                         <p> <a href='https://twitter.com/saravananmani_' target='_blank'> @saravananmani_</a>, <a href='https://twitter.com/saiy2k' target='_blank'> @saiy2k</a> </p>
                     </div>
