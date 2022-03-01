@@ -12,7 +12,8 @@ import { longPressLink,
 
 let firstResponse;
 //const serviceBase               =   'http://localhost:8089/graph/nodes';
-const serviceBase               =   'http://206.189.143.99:8089/graph/nodes';
+//const serviceBase               =   'http://206.189.143.99:8089/graph/nodes';
+const serviceBase               =   'https://api.lnlighthouse.online/graph/nodes';
 const WIDTH                     =   document.getElementById('renderBox').clientWidth;
 const HEIGHT                    =   document.getElementById('renderBox').clientHeight;
 const CENTERX                   =   WIDTH / 2;
@@ -263,7 +264,7 @@ function init() {
 
 setTimeout(async () => {
 
-    const lnNetworkRaw = await fetch('http://206.189.143.99:8089/graph/nodes');
+    const lnNetworkRaw = await fetch(serviceBase);
     firstResponse = {
         nodes: parseNodes((await lnNetworkRaw.json()).nodes),
         links: []
