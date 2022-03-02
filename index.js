@@ -33,12 +33,77 @@ let graphResp;
 
 let breadCrumb = [''];
 
+document.getElementById('searchBtn').addEventListener('click', async () => {
+
+    depth = lastDepth + 1;
+
+    const pubKeyToSearch = document.getElementById('publicKeyField').value;
+
+    document.getElementById('spinOverlay').style.display = 'block';
+    document.getElementById('spinSpinner').style.display = 'block';
+
+    const apiRawResp        =   await fetch(serviceBase, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "public_keys": [pubKeyToSearch]
+        })
+    });
+    const endNodeResp       =   await apiRawResp.json();
+    console.log('endNodeResp: ', endNodeResp);
+
+    document.getElementById('spinOverlay').style.display = 'none';
+    document.getElementById('spinSpinner').style.display = 'none';
+
+    const lnks = parseLinks(endNodeResp);
+
+    breadCrumb = [];
+    document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
+
+    nodes = [];
+    links = [];
+
+    graphResp               =   {
+        nodes: parseNodes(endNodeResp.nodes),
+        links: lnks
+    };
+    console.log('graphResp', graphResp);
+    nodes.push(...graphResp.nodes);
+    links.push(...graphResp.links);
+
+    const selectedN = nodes.find(n => n.public_key === pubKeyToSearch);
+    //selectedN.isCenter = true;
+
+    vis.selectAll('.node').data([]).exit().remove();
+    vis.selectAll('.link').data([]).exit().remove();
+    vis.selectAll('.lineText').data([]).exit().remove();
+
+    setTimeout(() => {
+        const simulation = d3.forceSimulation(nodes)
+            .force('charge', d3.forceManyBody().strength( strength ))
+            .force('link', d3.forceLink(links).distance(d => depth < lastDepth + 1 ? 30 : isMobile ? (60 + d.index * 3) : (90 + d.index * 4) ))
+            .force('center', d3.forceCenter(CENTERX, CENTERY));
+        sim = simulation;
+
+        const { node, container, link, line, lineText } = redrawNodes(vis, simulation, nodes, links,
+            isMobile, depth, lastDepth, radius,
+            circleStroke, circleColor, primaryColor, grayColor,
+            genNodeText, genNodeCountText, click);
+
+        simTick(simulation, container, line, lineText);
+    }, 100);
+
+});
+
 document.getElementById('resetBtn').addEventListener('click', () => {
 
     depth = 1;
     nodes = [];
     links = [];
     graphResp = firstResponse;
+    console.log('graphResp', graphResp);
     nodes.push(...graphResp.nodes.map(n => {
         return {
             ...n,
@@ -74,7 +139,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 const click = async (d) => {
 
     const selectedNode = d.srcElement.__data__;
-    const pub_key = selectedNode.pub_key;
 
     //console.log('click: ', selected, selectedNode, index);
 
@@ -137,6 +201,9 @@ const click = async (d) => {
         document.getElementById('spinSpinner').style.display = 'none';
 
         const lnks = parseLinks(endNodeResp);
+
+        breadCrumb = [];
+        document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
 
         nodes = [];
         links = [];

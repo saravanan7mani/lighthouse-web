@@ -55,9 +55,10 @@ export function formatSats(sats) {
     } else if (sats < 1000000) {
         return (sats / 1000).toFixed(2) + 'K';
         //return (sats / 1000).toFixed(0) + 'K';
-    } else {
+    } else if (sats < 100000000) {
         return (sats / 1000000).toFixed(2) + 'M';
-        //return (sats / 1000000).toFixed(0) + 'M';
+    } else {
+        return (sats / 100000000).toFixed(0) + 'B';
     }
 
 }

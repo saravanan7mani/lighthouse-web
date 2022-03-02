@@ -18,9 +18,9 @@
 
     </head>
     <body>
-        <nav class="navbar navbar-expand-md fixed-top border-bottom">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#" style="color: #dd7f13"> Lighthouse - Lightning Network Explorer </a>
+        <nav class="navbar navbar-expand-md fixed-top border-bottom bg-white">
+            <div class="container-fluid text-center">
+                <a class="navbar-brand" style="margin: auto; color: #dd7f13"> Lighthouse - Lightning Network Explorer </a>
                 <!--
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -39,7 +39,7 @@
             </div>
         </nav>
 
-        <main class="container border p-2 rounded">
+        <main class="container-fluid p-2">
             <div class='row'>
                 <div class="col-12 col-sm-9 col-md-9 col-lg-10">
                     <div id="breadCrumb" class='bg-light text-secondary p-2 w-100' style="display: flex; gap: 12px;" > &nbsp; </div>
@@ -50,10 +50,19 @@
                 </div>
             </div>
 
+            <div class='row'>
+                <div class="col-12 col-sm-9 col-md-9 col-lg-10">
+                    <input type="text" id="publicKeyField" />
+                </div>
+                <div class="col-12 col-sm-3 col-md-3 col-lg-2 text-end">
+                    <button type="button" class="btn btn-secondary" id="searchBtn"> Find </button>
+                </div>
+            </div>
+
             <div class='row' style='height: 80vh'>
                 <div class='col-12' id='renderBoxParent' style='position: relative'>
                     <svg id="renderBox" class='w-100 h-100'></svg>
-                    <div id='spinOverlay' class='h-100 bg-dark' style='width: 96%; opacity: 0.25; position: absolute; top: 0px'>
+                    <div id='spinOverlay' class='h-100 bg-dark' style='width: 99%; opacity: 0.25; position: absolute; top: 0px'>
                     </div>
                     <div id='spinSpinner' class="spinner-border" role="status" style='position: absolute; top: 48%; left: 48%'>
                         <span class="visually-hidden">Loading...</span>
@@ -74,7 +83,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title"> Node / Channel Info </h5>
+                        <h5 class="modal-title" id='nodeTipTile'></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div id='nodeTipBody' class="modal-body" style='overflow-wrap: anywhere'>
@@ -100,6 +109,8 @@
                         </ol>
                         <b> About this tool </b>
                         <p>
+                            - To learn LN, we created this explorer. Suggestions are welcome.
+                            - Nodes are categorized by total channel capacity - help
                             - Here is our version of LN Explorer. <br/>
                             - Nodes categorized by Channel capacity.
                             - Suggestions welcome.
