@@ -47,7 +47,11 @@ export const redrawNodes = (vis, simulation, nodes, links,
             d3.select(this).attr('stroke', '#aaaaaa');
         });
 
-    link.exit().remove();
+    link.exit()
+        .on('dblclick', null)
+        .on('mouseover', null)
+        .on('mouseout', null)
+        .remove();
 
     const linkText = vis.selectAll('.lineText').data(links);
     const lineText = linkText.enter()
@@ -158,7 +162,12 @@ export const redrawNodes = (vis, simulation, nodes, links,
     }
 
     container.selectAll('circle').transition().attr('r', radius).style('fill', circleColor);
-    node.exit().remove();
+    node.exit()
+        .on('click', null)
+        .on('dblclick', null)
+        .on('mouseover', null)
+        .on('mouseout', null)
+        .remove();
 
     return {
         node, container, link, line, lineText

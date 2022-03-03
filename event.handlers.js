@@ -52,11 +52,15 @@ export const longPressLink = async (d) => {
     if (selectedLink.n1_public_key)
         msg += `<b>N2: Public key: </b> ${selectedLink.n1_public_key} <br/> <br/>`;
 
-    if (selectedLink.n0_updated_at)
-        msg += `<b>N1: Updated at: </b> ${selectedLink.n0_updated_at} <br/> <br/>`;
+    if (selectedLink.n0_updated_at) {
+        const dateObj = new Date(selectedLink.n0_updated_at);
+        msg += `<b>N1: Updated at: </b> ${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()} <br/> <br/>`;
+    }
 
-    if (selectedLink.n1_updated_at)
-        msg += `<b>N2: Updated at: </b> ${selectedLink.n1_updated_at} <br/> <br/>`;
+    if (selectedLink.n1_updated_at) {
+        const dateObj = new Date(selectedLink.n1_updated_at);
+        msg += `<b>N2: Updated at: </b> ${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()} <br/> <br/>`;
+    }
 
     const myModal = new bootstrap.Modal(document.getElementById('nodeTipModel'))
     myModal.show();
@@ -71,6 +75,7 @@ export const longPressNode = async (d) => {
 
     const selectedNode = d.srcElement.__data__;
     const pub_key = selectedNode.pub_key;
+    const dateObj = new Date(selectedNode.updated_at);
 
     //console.log('longPressNode: ', selectedNode);
 
@@ -79,7 +84,7 @@ export const longPressNode = async (d) => {
     msg += `<b>Public Key:</b> ${selectedNode.public_key} <br/> <br/>`;
     msg += `<b>Channel count:</b> ${selectedNode.channel_count} <br/> <br/>`;
     msg += `<b>Socket:</b> ${ selectedNode.sockets && selectedNode.sockets.length > 0 ? selectedNode.sockets.join(', '): 'None'} <br/> <br/>`;
-    msg += `<b>Updated at:</b> ${ selectedNode.updated_at } <br/> <br/>`;
+    msg += `<b>Updated at:</b> ${ dateObj.toLocaleDateString() } ${ dateObj.toLocaleTimeString() } <br/> <br/>`;
 
     const myModal = new bootstrap.Modal(document.getElementById('nodeTipModel'))
     myModal.show();

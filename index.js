@@ -35,9 +35,18 @@ let breadCrumb = [''];
 
 document.getElementById('searchBtn').addEventListener('click', async () => {
 
+    // Previous API call still in process
+    if (document.getElementById('spinOverlay').style.display === 'block') {
+        return;
+    }
+
     depth = lastDepth + 1;
 
     const pubKeyToSearch = document.getElementById('publicKeyField').value;
+
+    if (pubKeyToSearch.length > 100) {
+        return
+    }
 
     document.getElementById('spinOverlay').style.display = 'block';
     document.getElementById('spinSpinner').style.display = 'block';
@@ -52,10 +61,13 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
         })
     });
     const endNodeResp       =   await apiRawResp.json();
-    console.log('endNodeResp: ', endNodeResp);
+    //console.log('endNodeResp: ', endNodeResp);
 
     document.getElementById('spinOverlay').style.display = 'none';
     document.getElementById('spinSpinner').style.display = 'none';
+
+    // No nodes returned from API
+    if (endNodeResp.nodes.length === 0) return;
 
     const lnks = parseLinks(endNodeResp);
 
@@ -66,24 +78,27 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
     links = [];
 
     graphResp               =   {
-        nodes: parseNodes(endNodeResp.nodes),
+        nodes: endNodeResp.nodes,
         links: lnks
     };
-    console.log('graphResp', graphResp);
+    //console.log('graphResp', graphResp);
     nodes.push(...graphResp.nodes);
     links.push(...graphResp.links);
 
     const selectedN = nodes.find(n => n.public_key === pubKeyToSearch);
-    //selectedN.isCenter = true;
+    selectedN.isCenter = true;
 
     vis.selectAll('.node').data([]).exit().remove();
     vis.selectAll('.link').data([]).exit().remove();
     vis.selectAll('.lineText').data([]).exit().remove();
 
     setTimeout(() => {
+        if (sim) {
+            sim.on('tick', null);
+        }
         const simulation = d3.forceSimulation(nodes)
             .force('charge', d3.forceManyBody().strength( strength ))
-            .force('link', d3.forceLink(links).distance(d => depth < lastDepth + 1 ? 30 : isMobile ? (60 + d.index * 3) : (90 + d.index * 4) ))
+            .force('link', d3.forceLink(links).distance( distance ))
             .force('center', d3.forceCenter(CENTERX, CENTERY));
         sim = simulation;
 
@@ -103,7 +118,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     nodes = [];
     links = [];
     graphResp = firstResponse;
-    console.log('graphResp', graphResp);
+    //console.log('graphResp', graphResp);
     nodes.push(...graphResp.nodes.map(n => {
         return {
             ...n,
@@ -120,11 +135,15 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
     setTimeout(() => {
         
+        if (sim) {
+            sim.on('tick', null);
+        }
         const simulation = d3.forceSimulation(nodes)
             .force('charge', d3.forceManyBody().strength( 0 ))
             .force('link', d3.forceLink(links))
             .force('center', d3.forceCenter(CENTERX, CENTERY));
         sim = simulation;
+
         const { node, container, link, line, lineText } = redrawNodes(vis, simulation, nodes, links,
             isMobile, depth, lastDepth, radius,
             circleStroke, circleColor, primaryColor, grayColor,
@@ -200,6 +219,9 @@ const click = async (d) => {
         document.getElementById('spinOverlay').style.display = 'none';
         document.getElementById('spinSpinner').style.display = 'none';
 
+        // No nodes returned from API
+        if (endNodeResp.nodes.length === 0) return;
+
         const lnks = parseLinks(endNodeResp);
 
         breadCrumb = [];
@@ -226,10 +248,15 @@ const click = async (d) => {
     vis.selectAll('.lineText').data([]).exit().remove();
 
     setTimeout(() => {
+        if (sim) {
+            sim.on('tick', null);
+        }
+
         const simulation = d3.forceSimulation(nodes)
             .force('charge', d3.forceManyBody().strength( strength ))
-            .force('link', d3.forceLink(links).distance(d => depth < lastDepth + 1 ? 30 : isMobile ? (60 + d.index * 3) : (90 + d.index * 4) ))
+            .force('link', d3.forceLink(links).distance( distance ))
             .force('center', d3.forceCenter(CENTERX, CENTERY));
+
         sim = simulation;
 
         const { node, container, link, line, lineText } = redrawNodes(vis, simulation, nodes, links,
@@ -245,6 +272,18 @@ const click = async (d) => {
 
 const selected = [];
 
+const distance = (d) => {
+    if (depth < lastDepth + 1) {
+        return 30;
+    } else {
+        if (nodes.length < 30) {
+            return isMobile ? (70 + d.index * 4) : (110 + d.index * 6) ;
+        } else {
+            return isMobile ? (60 + d.index * 3) : (90 + d.index * 4) ;
+        }
+    }
+};
+
 const strength = (d) => {
     if (depth > lastDepth) {
         return isMobile ? -10 : -20;
@@ -252,6 +291,7 @@ const strength = (d) => {
         return isMobile ? -25 : -50;
     }
 }
+
 const radius = (d) => {
     if (isMobile) {
         return depth === lastDepth + 1 ? 15 : 35
@@ -259,6 +299,7 @@ const radius = (d) => {
         return depth === lastDepth + 1 ? 28 : 45
     }
 };
+
 const circleStroke = (d) => {
     if (depth > lastDepth) {
         return '#1EB5D2';
@@ -312,7 +353,6 @@ const genNodeCountText = (d) => {
 function init() {
 
     vis = d3.select('#renderBox');
-    console.log('vis', vis);
 
     const simulation = d3.forceSimulation(nodes)
         .force('charge', d3.forceManyBody().strength( strength ))
