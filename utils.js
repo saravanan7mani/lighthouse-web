@@ -58,7 +58,7 @@ export function formatSats(sats) {
     } else if (sats < 100000000) {
         return (sats / 1000000).toFixed(2) + 'M';
     } else {
-        return (sats / 100000000).toFixed(2) + 'B';
+        return (sats / 1000000000).toFixed(2) + 'B';
     }
 
 }

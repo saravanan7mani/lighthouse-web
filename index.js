@@ -20,12 +20,14 @@ const CENTERX                   =   WIDTH / 2;
 const CENTERY                   =   HEIGHT / 2;
 const isMobile                  =   WIDTH < 640;
 
+const lastDepth = 3;
+
 let nodes = [];
 let links = [];
 let vis = null;
 
+let prevDepth;
 let depth = 1
-const lastDepth = 3;
 
 let sim;
 let apiResp;
@@ -40,13 +42,17 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
         return;
     }
 
-    depth = lastDepth + 1;
-
     const pubKeyToSearch = document.getElementById('publicKeyField').value;
 
     if (pubKeyToSearch.length > 100) {
-        return
+        const invalidToastEl = document.getElementById('invalidKeyAlert')
+        const invalidToast = new bootstrap.Toast(invalidToastEl);
+        invalidToast.show();
+        return;
     }
+
+    prevDepth = depth;
+    depth = lastDepth + 1;
 
     document.getElementById('spinOverlay').style.display = 'block';
     document.getElementById('spinSpinner').style.display = 'block';
@@ -67,12 +73,18 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
     document.getElementById('spinSpinner').style.display = 'none';
 
     // No nodes returned from API
-    if (endNodeResp.nodes.length === 0) return;
+    if (endNodeResp.nodes.length === 0) {
+        depth = prevDepth;
+        const invalidToastEl = document.getElementById('invalidKeyAlert')
+        const invalidToast = new bootstrap.Toast(invalidToastEl);
+        invalidToast.show();
+        return;
+    }
 
     const lnks = parseLinks(endNodeResp);
 
     breadCrumb = [];
-    document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
+    document.getElementById('breadCrumb').innerText = '>';
 
     nodes = [];
     links = [];
@@ -110,6 +122,7 @@ document.getElementById('searchBtn').addEventListener('click', async () => {
         simTick(simulation, container, line, lineText);
     }, 100);
 
+    document.getElementById('publicKeyField').value = '';
 });
 
 document.getElementById('resetBtn').addEventListener('click', () => {
@@ -127,7 +140,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     }));
 
     breadCrumb = [''];
-    document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
+    document.getElementById('breadCrumb').innerText = '>';
+    //document.getElementById('breadCrumb').innerHTML = breadCrumb.join(' <b> &gt; </b> ');
 
     vis.selectAll('.node').data([]).exit().remove();
     vis.selectAll('.link').data([]).exit().remove();
@@ -153,6 +167,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
     }, 100);
 
+    document.getElementById('publicKeyField').value = '';
 });
 
 const click = async (d) => {
@@ -164,19 +179,7 @@ const click = async (d) => {
     nodes = [];
     links = [];
 
-    if (depth === 1) {
-        graphResp               =   {
-            nodes: parseNodes(selectedNode.children),
-            links: []
-        };
-        nodes.push(...graphResp.nodes);
-        links.push(...graphResp.links);
-        depth++;
-
-        breadCrumb.push(`${formatSats(selectedNode.startSats)} to ${formatSats(selectedNode.endSats)}`);
-        document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
-
-    } else if (depth < lastDepth) {
+    if (depth < lastDepth) {
         graphResp               =   {
             nodes: parseNodes(selectedNode.children),
             links: []
@@ -225,7 +228,7 @@ const click = async (d) => {
         const lnks = parseLinks(endNodeResp);
 
         breadCrumb = [];
-        document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
+        document.getElementById('breadCrumb').innerText = '>';
 
         nodes = [];
         links = [];
@@ -366,6 +369,10 @@ function init() {
         genNodeText, genNodeCountText, click);
 
     simTick(simulation, container, line, lineText);
+
+    const loaderAlertEl = document.getElementById('loaderAlert');
+    const loaderAlert = new bootstrap.Toast(loaderAlertEl);
+    loaderAlert.show();
 
 }
 

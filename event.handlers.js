@@ -65,9 +65,8 @@ export const longPressLink = async (d) => {
     const myModal = new bootstrap.Modal(document.getElementById('nodeTipModel'))
     myModal.show();
 
-    document.getElementById('nodeTipBody').innerHTML = msg;
-
     document.getElementById('nodeTipTile').innerText = 'Channel Info';
+    document.getElementById('nodeTipBody').innerHTML = msg;
 
 }
 
@@ -89,9 +88,8 @@ export const longPressNode = async (d) => {
     const myModal = new bootstrap.Modal(document.getElementById('nodeTipModel'))
     myModal.show();
 
-    document.getElementById('nodeTipBody').innerHTML = msg;
-
     document.getElementById('nodeTipTile').innerText = 'Node Info';
+    document.getElementById('nodeTipBody').innerHTML = msg;
 }
 
 document.getElementById('helpBtn').addEventListener('click', () => {

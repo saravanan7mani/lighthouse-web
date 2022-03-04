@@ -10,7 +10,6 @@ import { longPressLink,
 let isMobile;
 let timeout = null;
 
-
 const fnBig = (d) => isMobile ? '12px' : '14px';
 const fnNormal = (d) => isMobile ? '10px' : '12px';
 const fnSmall = (d) => isMobile ? '8px' : '10px';
@@ -20,7 +19,7 @@ export const redrawNodes = (vis, simulation, nodes, links,
     circleStroke, circleColor, primaryColor, grayColor,
     genNodeText, genNodeCountText, click) => {
 
-    isMobile = _isMobile
+    isMobile = _isMobile;
 
     // Link setup
     const link = vis.selectAll('.link').data(links);
@@ -35,8 +34,9 @@ export const redrawNodes = (vis, simulation, nodes, links,
         .attr('x2', l => l.target.x)
         .attr('y2', l => l.target.y)
         .on('dblclick', (d) => {
-            console.log('dblclick');
-            longPressLink(d);
+            if (depth > lastDepth) {
+                longPressLink(d);
+            }
         })
         .on('mouseover', function() {
             d3.select(this).attr('stroke-width', '6');
@@ -79,9 +79,10 @@ export const redrawNodes = (vis, simulation, nodes, links,
             }, 300)
         })
         .on('dblclick', (d) => {
-            console.log('dblclick');
             clearTimeout(timeout);
-            longPressNode(d);
+            if (depth > lastDepth) {
+                longPressNode(d);
+            }
         })
         .on('mouseover', function() {
             //console.log('mouse over');
@@ -174,7 +175,6 @@ export const redrawNodes = (vis, simulation, nodes, links,
     };
 
 }
-
 
 export function simTick(simulation, container, line, lineText) {
 
