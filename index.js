@@ -34,6 +34,8 @@ let apiResp;
 let graphResp;
 
 let breadCrumb = [''];
+let nodeLoaderAlertShown = false;
+let node2LoaderAlertShown = false;
 
 document.getElementById('searchBtn').addEventListener('click', async () => {
 
@@ -168,6 +170,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     }, 100);
 
     document.getElementById('publicKeyField').value = '';
+    nodeLoaderAlertShown = false;
+    node2LoaderAlertShown = false;
 });
 
 const click = async (d) => {
@@ -203,7 +207,21 @@ const click = async (d) => {
         breadCrumb.push(`${formatSats(selectedNode.startSats)} to ${formatSats(selectedNode.endSats)}`);
         document.getElementById('breadCrumb').innerHTML = breadCrumb.join('  <b> &gt; </b> ');
 
+        if (!nodeLoaderAlertShown) {
+            const loaderAlertEl = document.getElementById('nodeLoaderAlert');
+            const loaderAlert = new bootstrap.Toast(loaderAlertEl);
+            loaderAlert.show();
+            nodeLoaderAlertShown = true;
+        }
+
     } else if (depth === lastDepth + 1) {
+
+        if (!node2LoaderAlertShown) {
+            const loaderAlertEl = document.getElementById('node2LoaderAlert');
+            const loaderAlert = new bootstrap.Toast(loaderAlertEl);
+            loaderAlert.show();
+            node2LoaderAlertShown = true;
+        }
 
         document.getElementById('spinOverlay').style.display = 'block';
         document.getElementById('spinSpinner').style.display = 'block';
