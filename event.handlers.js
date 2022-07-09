@@ -165,12 +165,23 @@ export const longPressNode = async (d) => {
 
     //console.log('longPressNode: ', selectedNode);
 
-    let msg = `<b>Alias:</b> ${selectedNode.alias} <br/> <br/>`;
+    let msg = '';
+
+    if (selectedNode.alias) {
+        msg += `<b>Alias:</b> ${selectedNode.alias} <br/> <br/>`;
+    }
+
     msg += `<b>Capacity:</b> ${selectedNode.capacity} sats (${formatSats(selectedNode.capacity)}) <br/> <br/>`;
     msg += `<b>Public Key:</b> ${selectedNode.public_key} <br/> <br/>`;
     msg += `<b>Channel count:</b> ${selectedNode.channel_count} <br/> <br/>`;
-    msg += `<b>Socket:</b> ${ selectedNode.sockets && selectedNode.sockets.length > 0 ? selectedNode.sockets.join(', '): 'None'} <br/> <br/>`;
-    msg += `<b>Updated at:</b> ${ dateObj.toLocaleDateString() } ${ dateObj.toLocaleTimeString() } <br/> <br/>`;
+
+    if (selectedNode.sockets) {
+        msg += `<b>Socket:</b> ${ selectedNode.sockets && selectedNode.sockets.length > 0 ? selectedNode.sockets.join(', '): 'None'} <br/> <br/>`;
+    }
+
+    if (selectedNode.updated_at) {
+        msg += `<b>Updated at:</b> ${ dateObj.toLocaleDateString() } ${ dateObj.toLocaleTimeString() } <br/> <br/>`;
+    }
 
     const myModal = new bootstrap.Modal(document.getElementById('nodeTipModel'))
     myModal.show();
